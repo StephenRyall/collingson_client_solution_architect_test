@@ -1,0 +1,183 @@
+.lounge-card {
+  position: relative;
+}
+
+.lounge-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.lounge-card-icon-large {
+  font-size: 3rem;
+}
+
+.lounge-card-access-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lounge-card-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #212121;
+  margin: 0 0 12px 0;
+}
+
+.lounge-card-location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: #757575;
+  margin-bottom: 12px;
+}
+
+.lounge-location-icon {
+  font-size: 1.125rem;
+}
+
+.lounge-card-description {
+  font-size: 0.875rem;
+  color: #757575;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.lounge-card-hours {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: #212121;
+  margin-bottom: 16px;
+}
+
+.lounge-hours-icon {
+  font-size: 1.125rem;
+}
+
+.lounge-card-amenities {
+  margin-bottom: 16px;
+}
+
+.amenities-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 8px;
+}
+
+.amenities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.amenity-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #F5F7FA;
+  color: #003B5C;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.lounge-card-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+  border-top: 1px solid #E0E0E0;
+}
+
+.lounge-view-details-btn {
+  padding: 8px 24px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #003B5C;
+  background-color: transparent;
+  border: 2px solid #003B5C;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 250ms ease-in-out;
+  font-family: inherit;
+}
+
+.lounge-view-details-btn:hover {
+  background-color: #003B5C;
+  color: white;
+}
+
+/* Compact Version */
+.lounge-card-compact {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 250ms ease-in-out;
+  margin-bottom: 12px;
+}
+
+.lounge-card-compact:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.lounge-compact-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.lounge-compact-content {
+  flex: 1;
+}
+
+.lounge-compact-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 4px;
+}
+
+.lounge-compact-details {
+  font-size: 0.75rem;
+  color: #757575;
+}
+
+.lounge-compact-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .lounge-card-name {
+    font-size: 1rem;
+  }
+
+  .amenities-list {
+    gap: 6px;
+  }
+
+  .amenity-tag {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+  }
+}
+

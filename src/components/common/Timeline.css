@@ -1,0 +1,142 @@
+.timeline {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.timeline-horizontal {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.timeline-vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.timeline-vertical .timeline-item {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.timeline-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #E0E0E0;
+  border-radius: 50%;
+  z-index: 2;
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.timeline-item-highlighted .timeline-icon {
+  background-color: #003B5C;
+  color: white;
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  background-color: white;
+  border: 3px solid #BDBDBD;
+  border-radius: 50%;
+}
+
+.timeline-item-highlighted .timeline-dot {
+  border-color: white;
+  background-color: #FFB300;
+}
+
+.timeline-content {
+  margin-left: 12px;
+  flex: 1;
+}
+
+.timeline-vertical .timeline-content {
+  margin-left: 16px;
+}
+
+.timeline-time {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 4px;
+}
+
+.timeline-label {
+  font-size: 0.875rem;
+  color: #757575;
+  white-space: nowrap;
+}
+
+.timeline-vertical .timeline-label {
+  white-space: normal;
+}
+
+.timeline-connector {
+  height: 2px;
+  flex: 1;
+  background-color: #E0E0E0;
+  margin: 0 8px;
+  position: relative;
+  top: -20px;
+}
+
+.timeline-vertical .timeline-connector {
+  width: 2px;
+  height: 24px;
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  margin: 0;
+}
+
+.timeline-item-highlighted + .timeline-item .timeline-connector,
+.timeline-item-highlighted .timeline-connector {
+  background-color: #FFB300;
+}
+
+@media (max-width: 768px) {
+  .timeline-horizontal {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .timeline-horizontal .timeline-item {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .timeline-horizontal .timeline-connector {
+    width: 2px;
+    height: 16px;
+    position: absolute;
+    left: 19px;
+    top: 40px;
+  }
+
+  .timeline-label {
+    white-space: normal;
+  }
+
+  .timeline-time {
+    font-size: 1rem;
+  }
+
+  .timeline-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+}
+
