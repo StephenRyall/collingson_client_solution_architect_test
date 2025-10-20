@@ -45,6 +45,26 @@ This application demonstrates a **client-side MVP** that would integrate with ba
 └─────────────────────────────────────────────────────────┘
 ```
 
+### T-Shirt Sizing (Container Diagram Estimates)
+
+The following estimates represent the complexity and effort required to build each backend service in the Container Diagram:
+
+| Service | Size | Justification |
+|---------|------|---------------|
+| **API Gateway** | **S** | Standard configuration using Kong/AWS API Gateway. Mostly setup and routing rules. |
+| **Integration Service** | **XL** | Most complex service - handles orchestration, time calculations, data enrichment, state management, error handling, and coordinates all other services. |
+| **Flight Data Service** | **M** | Moderate complexity - integrates with external flight APIs, caching layer, data normalization. Mostly API wrapping and data transformation. |
+| **Taxi Booking Service** | **L** | High complexity - ride matching algorithm, driver availability, real-time status updates, booking lifecycle management, integration with payment gateway. |
+| **User/Auth Service** | **M** | Standard OAuth 2.0 implementation with user profile management. Well-established patterns (Auth0/Keycloak). |
+| **Payment Service** | **L** | High complexity due to PCI compliance requirements, tokenization, secure payment gateway integration (Stripe/Adyen), reconciliation. |
+| **Notification Service** | **S** | Simple service using existing providers (SendGrid, Twilio). Template management and delivery tracking. |
+| **Event Bus** | **S** | Managed service (AWS EventBridge/Kafka). Mostly configuration and topic setup. |
+| **User Database** | **S** | PostgreSQL with standard schema. Well-defined data model. |
+| **Booking Database** | **M** | PostgreSQL with more complex relationships - bookings, rides, drivers, status history. Requires indexing strategy for high-read volume. |
+| **Analytics Warehouse** | **M** | Redshift/BigQuery setup with ETL pipelines. Aggregation queries and reporting dashboards. |
+
+**Total Estimated Effort:** ~6-8 months for a team of 4-5 engineers
+
 ### Design Patterns Used
 
 1. **Component-Based Architecture**
@@ -222,14 +242,28 @@ pickup_time = flight_departure
 - [x] Professional UI with Priority Pass branding
 
 ### 📋 Production Enhancements (Not Built)
+
+**Core Infrastructure:**
 - [ ] Real backend API integration
-- [ ] User authentication & authorization
+- [ ] User authentication & authorization (OAuth 2.0)
 - [ ] Real-time driver tracking (WebSocket)
 - [ ] Payment processing integration
 - [ ] Email/SMS notifications
 - [ ] Multi-currency support
 - [ ] Accessibility (WCAG AA)
-- [ ] Analytics tracking
+
+**Operational & Analytics Features:**
+- [ ] **Operations Dashboard**: Admin interface for monitoring system health, booking volumes, and error rates
+- [ ] **Fleet Management**: Driver availability tracking, route optimization, surge pricing management
+- [ ] **Analytics & Reporting**: Business intelligence dashboards showing ride patterns, revenue metrics, and partnership performance
+- [ ] **Customer Support Tools**: Dispute resolution, refund management, booking modification capabilities
+- [ ] **Performance Monitoring**: Real-time alerting, error tracking (Sentry), APM (New Relic/Datadog)
+
+**Why These Were Omitted:**
+- Focus on **core user journey** and **technical architecture** for MVP demonstration
+- Operational features don't showcase client-facing value proposition
+- Time-constrained assessment prioritizes demonstrable user experience
+- These features would be built in **Phase 2-3** (3-6 months post-MVP)
 
 ---
 
@@ -243,8 +277,8 @@ pickup_time = flight_departure
 5. **Audit Logging**: All transactions logged immutably
 
 ### Data Privacy
-- Taxi Manager sees aggregated data only (e.g., "PP Member #12345", not "John Smith")
 - Cross-system queries go through Integration Service (gatekeeper)
+- Minimal data sharing between platforms (only what's necessary for core functionality)
 - GDPR-compliant data handling
 
 ---

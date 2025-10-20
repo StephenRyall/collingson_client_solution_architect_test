@@ -30,204 +30,69 @@
 ---
 
 ## PHASE 1: ACTORS & USER FLOWS
-### Addressing Feedback Point 1: Taxi Manager Clarity
+### MVP Actor Model
 
-### 1.1 Complete Actor Model
+### 1.1 Core Actor Model
 
-We have **5 distinct actors**, not 3:
+We have **3 primary actors** for the MVP:
 
 **PRIMARY ACTORS:**
 1. **Priority Pass Member (Traveler)**
    - Uses: PP app to view flights, book taxis, access lounges
+   - Primary use case: Seamless airport journey planning
 
 2. **Taxi App User (Non-PP Member)**
    - Uses: Taxi app for rides + sees PP lounge offers
+   - Secondary benefit: Cross-promotion of Priority Pass services
 
 3. **Taxi Driver**
    - Uses: Taxi Driver app to accept/decline rides, navigate
+   - Receives booking requests from both PP and taxi platform users
 
-**ADMINISTRATIVE ACTORS:**
-4. **Taxi Manager (Operations/Support)**
-   - Uses: Admin dashboard for fleet management, dispute resolution
+**Why This Actor Model:**
+- **MVP Focus**: Core user journey (traveler books taxi, driver fulfills)
+- **Clear Value Proposition**: Demonstrates integration benefits without complexity
+- **Scalable Foundation**: Additional actors (operations teams, support) can be added post-MVP
 
-5. **Priority Pass Operations Team**
-   - Uses: Admin dashboard for lounge inventory, member support
+### 1.2 Primary User Flows (MVP)
 
-**Why This Matters:**
-- **Taxi Manager** is NOT the same as a Taxi Driver or User
-- They have **different data access levels** and **different responsibilities**
-- This separation is critical for security, data privacy, and operational clarity
-
----
-
-### 1.2 Taxi Manager: Role & Responsibilities
-
-#### What Does the Taxi Manager Do?
-
-**Primary Responsibilities:**
-
-1. **Fleet Operations**
-   - Monitor active rides in real-time
-   - Track driver availability and utilization
-   - Manage surge pricing zones (airport routes)
-
-2. **Quality Assurance**
-   - Review customer complaints
-   - Monitor driver ratings
-   - Handle booking disputes
-
-3. **Business Intelligence**
-   - Analyze airport route patterns
-   - Identify peak demand times
-   - Optimize driver allocation near airports
-
-4. **Integration Management (NEW - for this project)**
-   - Monitor Priority Pass booking volume
-   - Track PP member vs non-member ride ratios
-   - Adjust airport route pricing for PP partnerships
-
----
-
-#### Taxi Manager's Data Access
-
-**CAN Access (Aggregated/Anonymized):**
-```javascript
-{
-  "airport_routes": {
-    "LHR": {
-      "total_rides_today": 247,
-      "priority_pass_rides": 89,  // 36% of traffic
-      "avg_wait_time": "4.2 mins",
-      "peak_hours": ["06:00-09:00", "17:00-20:00"],
-      "driver_utilization": "78%"
-    }
-  },
-  "active_bookings": [
-    {
-      "booking_id": "taxi_456",
-      "driver_id": "driver_123",
-      "status": "en_route",
-      "pickup_eta": "3 mins",
-      "route": "Zone 2 → LHR Terminal 5",
-      // NO personal user data here
-    }
-  ]
-}
+**Flow 1: Priority Pass Member Books Taxi**
+```
+1. User opens Priority Pass app
+2. Views upcoming flight (LHR departure at 14:30)
+3. Sees recommended taxi pickup time (12:00) with timeline breakdown
+4. Enters pickup address (home/hotel)
+5. Reviews fare estimate with 10% PP member discount
+6. Books taxi
+7. Receives confirmation with driver details
+8. Gets real-time status updates
 ```
 
-**CANNOT Access (Privacy Protection):**
-- Individual traveler names (only see "PP Member #12345")
-- Specific flight numbers (only see "LHR departure")
-- Payment card details (only see "Payment: Successful")
-- Lounge access history (Priority Pass internal data)
-
----
-
-#### Taxi Manager Views/Dashboards
-
-**Dashboard 1: Operations Overview**
-- Real-time map of active airport rides
-- Driver availability heatmap
-- Current wait times per airport/terminal
-- Active alerts (e.g., "Terminal 3 high demand")
-
-**Dashboard 2: Priority Pass Integration Monitor**
-- PP booking volume trends
-- Conversion rate: PP members seeing taxi offer → booking
-- Average fare per PP member vs standard user
-- SLA metrics: average pickup time for PP bookings
-
-**Dashboard 3: Dispute Resolution**
-- Flagged rides (late pickups, cancellations)
-- Customer complaint queue
-- Driver incident reports
-- Ability to issue refunds/credits
-
-**Dashboard 4: Analytics (Pattern Recognition)**
-
-Example Insights:
-- "PP members booking to LHR peak at 6am daily"
-- "Terminal 5 routes have 22% higher fare acceptance"
-- "Drivers near PP partner hotels see 3x bookings"
-- **Action**: Suggest drivers position near those hotels
-
----
-
-#### Taxi Manager in User Flows
-
-**Scenario 1: Normal Ride (No Taxi Manager Involvement)**
+**Flow 2: Taxi Driver Accepts Booking**
 ```
-1. PP Member books taxi via PP app
-2. Booking routed to Taxi Service
-3. Nearest driver auto-assigned
-4. Ride completes successfully
-→ Taxi Manager only sees aggregated stats
+1. Driver sees new booking request in driver app
+2. Views pickup location and airport destination
+3. Sees "Priority Pass Member" badge (may influence acceptance)
+4. Accepts booking
+5. Navigates to pickup location
+6. Completes journey
+7. Receives payment (PP member discount already applied)
 ```
 
-**Scenario 2: Ride Issue (Taxi Manager Intervenes)**
+**Flow 3: Cross-Platform Inventory Sharing**
 ```
-1. PP Member books taxi
-2. Driver doesn't arrive (15+ min late)
-3. Member cancels, contacts support
-4. PP Support escalates to Taxi Manager
-5. Taxi Manager:
-   - Reviews driver GPS logs
-   - Confirms driver fault
-   - Issues refund to PP member
-   - Flags driver for review
+Scenario A: Taxi User Discovers PP
+1. Regular taxi app user books airport ride
+2. Sees promotional banner: "Access airport lounges with Priority Pass"
+3. Views available lounges at destination airport
+4. Option to sign up for PP membership
+
+Scenario B: PP Member Uses Taxi Platform Directly
+1. PP member downloads taxi app separately
+2. Links PP account during onboarding
+3. Automatically receives member discounts on airport routes
+4. Booking history synced across both platforms
 ```
-
-**Scenario 3: Strategic Optimization (Proactive)**
-```
-1. Taxi Manager notices pattern:
-   "BA flights from LHR T5 → JFK heavily booked by PP members"
-2. Suggests to drivers: "Position near T5 at 1pm daily"
-3. PP members see faster pickup times
-4. Driver earnings increase
-→ Win-win optimization
-```
-
----
-
-### 1.3 How Taxi Manager Influences Data Flow
-
-**Direct Influence:**
-- **Pricing adjustments**: Can set PP member discounts (e.g., 10% off airport routes)
-- **Driver allocation**: Can prioritize PP bookings during peak times
-- **Service quality**: Flags poor-performing drivers, improving PP member experience
-
-**Indirect Influence:**
-- **Pattern insights**: Data analysis leads to better driver positioning
-- **Integration health**: Monitors API performance between PP and Taxi systems
-- **Policy changes**: Recommends operational changes based on PP partnership data
-
-**Data They Provide Back to Priority Pass:**
-```javascript
-{
-  "service_quality_metrics": {
-    "avg_pickup_time_pp_members": "3.8 mins",  // vs 5.2 mins standard
-    "cancellation_rate": "2.1%",  // vs 4.5% standard
-    "driver_rating_avg": 4.7,
-    "on_time_performance": "94%"
-  },
-  "operational_alerts": [
-    {
-      "airport": "LHR",
-      "issue": "High demand, possible delays",
-      "recommended_buffer": "+15 mins"
-    }
-  ]
-}
-```
-
-**How This Appears in C4 Diagrams:**
-- **Context Diagram**: "Taxi Manager" as distinct actor
-- **Container Diagram**: "Taxi Operations Dashboard" as separate container
-- **Component Diagram**: Inside Taxi Service, components include:
-  - Ride Dispatcher (auto-assigns drivers)
-  - Operations Monitor (Taxi Manager's interface)
-  - Analytics Engine (pattern recognition)
-  - Escalation Handler (disputes)
 
 ---
 
@@ -333,25 +198,23 @@ Driver accepts ride
 ┌─────────────────────────────────┐
 │  Event Bus                      │
 └─────────────────────────────────┘
-         │
-         ├────────────────┐
-         ▼                ▼
-┌─────────────────┐  ┌─────────────────┐
-│ Integration     │  │ Taxi Ops        │
-│ Service         │  │ Dashboard       │
-│ (Listens)       │  │ (Listens)       │
-└─────────────────┘  └─────────────────┘
-         │                    │
-         │ Translates event   │ Shows in
-         │ for PP context     │ real-time map
-         ▼                    ▼
-┌─────────────────┐  ┌─────────────────┐
-│ Notification    │  │ Taxi Manager    │
-│ Service         │  │ sees active     │
-│                 │  │ PP booking      │
-└─────────────────┘  └─────────────────┘
-         │
-         ▼ Push notification
+        │
+        ▼
+┌─────────────────┐
+│ Integration     │
+│ Service         │
+│ (Listens)       │
+└─────────────────┘
+        │
+        │ Translates event
+        │ for PP context
+        ▼
+┌─────────────────┐
+│ Notification    │
+│ Service         │
+└─────────────────┘
+        │
+        ▼ Push notification
     PP Member receives:
     "Your driver John is 5 mins away"
 ```
@@ -399,99 +262,20 @@ Driver accepts ride
 
 ---
 
-#### Flow 3: Taxi Manager Queries Analytics
+#### Flow 3: Analytics & Monitoring (Post-MVP)
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ STEP 3: Taxi Manager Accesses Dashboard                         │
-└─────────────────────────────────────────────────────────────────┘
+**Note:** For MVP, analytics and operations dashboards are intentionally omitted to focus on core user journey. Post-MVP, the system would include:
 
-Taxi Manager opens Operations Dashboard
-Clicks "Priority Pass Integration Report"
-         │
-         ▼
-┌─────────────────────────────────┐
-│  Taxi Operations Dashboard      │
-│  (Web App)                      │
-└─────────────────────────────────┘
-         │ GET /api/analytics/pp-integration
-         ▼
-┌─────────────────────────────────┐
-│  Analytics Service              │  ◄─── Read-only, aggregated data
-│  • Queries data warehouse       │
-│  • Applies privacy filters      │
-│  • Returns aggregated metrics   │
-└─────────────────────────────────┘
-         │ Queries data from
-         ▼
-┌─────────────────────────────────┐
-│  Data Warehouse (Read Replicas) │
-│  • Booking history              │
-│  • Driver performance           │
-│  • Route patterns               │
-│  (NO raw PII)                   │
-└─────────────────────────────────┘
-         │ Data populated via
-         ▼
-┌─────────────────────────────────┐
-│  ETL Pipeline (nightly batch)   │
-│  Extracts from:                 │
-│  • Taxi Booking DB              │
-│  • Integration Service logs     │
-│  Transforms:                    │
-│  • Anonymizes user data         │
-│  • Aggregates by airport/time   │
-│  Loads into Data Warehouse      │
-└─────────────────────────────────┘
-```
+- **Business Intelligence**: Booking patterns, revenue metrics, route optimization
+- **System Monitoring**: API performance, error rates, service health
+- **Data Warehouse**: ETL pipelines for historical analysis using Redshift/BigQuery
+- **Alerting**: Automated notifications for system issues or anomalies
 
-**What Taxi Manager Sees:**
-```
-┌───────────────────────────────────────────────────────────┐
-│ Priority Pass Integration Dashboard                       │
-├───────────────────────────────────────────────────────────┤
-│                                                           │
-│  Today's Metrics (LHR):                                   │
-│  • Total PP Bookings: 89                                  │
-│  • Avg Pickup Time: 3.8 mins (vs 5.2 standard)           │
-│  • Cancellation Rate: 2.1%                                │
-│  • Revenue from PP: £3,245                                │
-│                                                           │
-│  ┌──────────────────────────────────────────────────┐    │
-│  │ Hourly Booking Pattern (Past 7 Days)            │    │
-│  │     ▂▄█▆▃▂▁  ▃▅▇█▆▄▂                            │    │
-│  │  0  6  12  18  24                                │    │
-│  │  Peak: 7am (pre-flight rush)                     │    │
-│  └──────────────────────────────────────────────────┘    │
-│                                                           │
-│  Top Routes:                                              │
-│  1. Zone 2 → LHR T5 (34 rides, £42 avg)                  │
-│  2. City → LHR T3 (28 rides, £38 avg)                    │
-│                                                           │
-│  Driver Performance (PP Bookings):                        │
-│  • Driver #123: 12 rides, 4.9★ rating                    │
-│  • Driver #456: 9 rides, 4.7★ rating                     │
-│                                                           │
-│  [Download Full Report]                                   │
-└───────────────────────────────────────────────────────────┘
-```
-
-**Justification for Separate Analytics Path:**
-
-1. **Why not query live database?**
-   - Would slow down operational systems
-   - Analytics needs historical data (months), not just live
-   - Aggregation queries are expensive
-
-2. **Why nightly ETL, not real-time?**
-   - Taxi Manager doesn't need second-by-second updates
-   - Batch processing more efficient for large datasets
-   - Real-time would require complex streaming infrastructure (over-engineering)
-
-3. **Why separate Data Warehouse?**
-   - Optimized for read-heavy analytical queries
-   - Contains anonymized data (privacy by design)
-   - Can be shared across multiple reporting tools
+**Why Omitted from MVP:**
+- Focus on demonstrating client-facing value (traveler experience)
+- Analytics don't impact core booking functionality
+- Adds significant complexity without showcasing integration benefits
+- Can leverage existing monitoring tools (Datadog, New Relic) in production
 
 ---
 
@@ -665,9 +449,9 @@ CREATE TABLE booking_analytics (
    - Can horizontally scale Integration Service
 
 3. **Privacy by design**
-   - Taxi Manager sees aggregated data, not individual PII
-   - Data warehouse pre-anonymized
+   - Minimal data sharing between systems (only what's necessary for core functionality)
    - Cross-system queries go through Integration Service (gatekeeper)
+   - No PII exposed in inter-service communication logs
 
 4. **Failure resilience**
    - Sync events table = retry mechanism
@@ -834,8 +618,8 @@ routes:
           minute: 100  # Higher limit for taxi app
     service: taxi-booking-service
 
-  # Route 3: Taxi Manager dashboard (different auth)
-  - name: taxi-ops-api
+  # Route 3: Future admin/ops endpoints (post-MVP)
+  - name: admin-api
     paths:
       - /api/v1/analytics/*
       - /api/v1/admin/*
@@ -1201,43 +985,35 @@ PP Member clicks "Book Taxi"
 
 ---
 
-### 4.6 Component Diagram: Taxi Booking Service
+### 4.6 Component Diagram: Taxi Booking Service (Optional Deep Dive)
 
-**Purpose:** Show Taxi Manager's interface within Taxi Service
+**Purpose:** Show internal structure of Taxi Booking Service
+
+**Note:** For MVP presentation, the Integration Service component diagram (4.5) is sufficient. This is provided for completeness.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ TAXI BOOKING SERVICE (Container)                                │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  COMPONENT 1: Public API (for Integration Service)              │
+│  COMPONENT 1: Booking API                                       │
 │  • POST /bookings                                               │
 │  • GET /bookings/:id                                            │
 │  • PATCH /bookings/:id/cancel                                   │
+│  • PATCH /bookings/:id/status                                   │
 │                                                                  │
-│  COMPONENT 2: Operations API (for Taxi Manager Dashboard)       │
-│  • GET /ops/bookings (paginated, filtered)                      │
-│  • GET /ops/analytics/summary                                   │
-│  • PATCH /ops/bookings/:id/refund                               │
-│  • GET /ops/drivers/performance                                 │
-│  ◄─── Taxi Manager accesses THIS component                      │
-│                                                                  │
-│  COMPONENT 3: Booking Manager                                   │
+│  COMPONENT 2: Booking Manager                                   │
 │  • createBooking()                                              │
 │  • assignDriver() ← Uses matching algorithm                     │
 │  • updateStatus()                                               │
+│  • cancelBooking()                                              │
 │                                                                  │
-│  COMPONENT 4: Driver Matching Engine                            │
+│  COMPONENT 3: Driver Matching Engine                            │
 │  • findNearestAvailableDriver(pickup): Driver                   │
 │  • Queries driver locations (PostGIS)                           │
-│  • Considers: distance, rating, PP member preference            │
+│  • Considers: distance, rating, availability                    │
 │                                                                  │
-│  COMPONENT 5: Analytics Aggregator                              │
-│  • aggregateMetrics(filters): Metrics                           │
-│  • Provides data to Taxi Manager dashboard                      │
-│  • Calculates: avg pickup time, cancellation rate, revenue      │
-│                                                                  │
-│  COMPONENT 6: Event Emitter                                     │
+│  COMPONENT 4: Event Publisher                                   │
 │  • Publishes events to Event Bus:                               │
 │    - booking.created                                            │
 │    - driver.assigned                                            │
@@ -1505,9 +1281,7 @@ export const mockRecommendedDeparture: RecommendedDeparture = {
 **Actors to Include:**
 1. Priority Pass Member (person icon)
 2. Taxi App User (person icon)
-3. Taxi Driver (person icon) ← ADDED
-4. Taxi Manager (person icon) ← ADDED
-5. Priority Pass Operations Team (person icon)
+3. Taxi Driver (person icon)
 
 **External Systems:**
 1. Flight Data Partner (e.g., Amadeus)
@@ -1523,8 +1297,6 @@ export const mockRecommendedDeparture: RecommendedDeparture = {
 PP Member → Platform: "Books taxi, views flights, accesses lounges"
 Taxi User → Platform: "Books rides, sees PP lounge offers"
 Taxi Driver → Platform: "Accepts rides, updates status"
-Taxi Manager → Platform: "Monitors operations, analyzes data"
-PP Ops Team → Platform: "Manages lounge inventory"
 
 Platform → Flight Data Partner: "Fetches flight data"
 Platform → Payment Gateway: "Processes payments"
@@ -1533,8 +1305,8 @@ Platform → Push Notification: "Sends push alerts"
 ```
 
 **Annotation:**
-- Add note: "Taxi Manager has separate operational view"
 - Add note: "Cross-platform data sharing via secure APIs"
+- Add note: "Minimal data exchange - only booking essentials"
 
 ---
 
@@ -1755,13 +1527,13 @@ This system integrates Priority Pass's airport lounge access platform with a
 global taxi booking service, providing travelers with a seamless door-to-lounge 
 journey experience.
 
-## Key Actors
+## Key Actors (MVP)
 
 1. **Priority Pass Member**: Books taxis, views flights, accesses lounges
 2. **Taxi App User**: Books rides, sees PP lounge recommendations
 3. **Taxi Driver**: Accepts/declines rides, navigates routes
-4. **Taxi Manager**: Monitors operations, analyzes partnership performance
-5. **PP Operations Team**: Manages lounge inventory and member support
+
+**Note:** Operations/management actors (Taxi Manager, PP Operations Team) are post-MVP features focused on after establishing core user journey.
 
 ## Architectural Decisions
 
@@ -1817,14 +1589,15 @@ journey experience.
 **Trade-off**: Eventual consistency
 - Mitigation: Critical path (booking) is synchronous; only side effects are async
 
-### 5. Separate Taxi Manager Interface
+### 5. Scalable Data Architecture
 
-**Decision**: Dedicated Operations API and Dashboard for Taxi Managers.
+**Decision**: Separate operational data (PostgreSQL) from analytics (Data Warehouse).
 
 **Reasoning**:
-- Managers need aggregated data, not individual user details (privacy)
-- Different authentication (API keys vs. user JWTs)
-- Different SLAs (analytics can be slower than booking)
+- Operational databases optimized for transactional workload (OLTP)
+- Analytics queries can be expensive, shouldn't impact live operations
+- Data warehouse optimized for read-heavy, aggregation queries (OLAP)
+- Enables future business intelligence and reporting features without performance impact
 
 **Data Access Control**:
 - Managers see: airport-level metrics, anonymized patterns
@@ -1849,7 +1622,8 @@ journey experience.
 
 ### 4. Access Control
 - Least privilege principle
-- Taxi Manager CANNOT access payment data
+- Services can only access their own data stores
+- Cross-service data access goes through Integration Service (gatekeeper)
 - Audit logs for all payment transactions (immutable)
 
 ### 5. Compliance Scope Reduction
@@ -1931,18 +1705,18 @@ journey experience.
 
 **Slide 2: User Journey Demo (2 mins)**
 - Live demo of React UI
-- Show: Flight view → Recommended time → Book taxi → See lounges
-- Highlight: "Taxi Manager can monitor these bookings in real-time"
+- Show: Flight view → Recommended time calculation → Book taxi → See lounges
+- Highlight: "Seamless cross-platform experience with smart recommendations"
 
 **Slide 3: Architecture Overview (3 mins)**
-- **Context Diagram**: "5 actors, including Taxi Manager with operational visibility"
-- **Container Diagram**: "19 containers, T-shirt sized"
-- **Component Diagram**: "Inside Integration Service, here's the orchestration"
+- **Context Diagram**: "3 core actors (Member, Taxi User, Driver) with clean separation"
+- **Container Diagram**: "11 containers, T-shirt sized for realistic MVP scope"
+- **Component Diagram**: "Inside Integration Service, here's the orchestration logic"
 
 **Slide 4: Key Decisions (2 mins)**
-- Hybrid orchestration-choreography
-- API Gateway only for client requests
-- Separate Taxi Manager interface
+- Hybrid orchestration-choreography pattern
+- API Gateway only for client requests (not service-to-service)
+- Scalable data architecture (operational vs. analytics)
 
 **Slide 5: Data Flow Deep Dive (1 min)**
 - Show sequence diagram
@@ -1968,9 +1742,9 @@ components like TimeCalculationEngine.
 A: Circuit breaker pattern. After 3 failures, Integration Service stops 
 calling, returns cached availability.
 
-**Q: How does Taxi Manager privacy work?**
-A: They see aggregated data only. Individual bookings show "PP Member #12345", 
-not "John Smith".
+**Q: How would operational monitoring work in production?**
+A: Post-MVP, we'd add admin dashboards with aggregated metrics (no PII). Operations 
+teams would see patterns and system health, not individual user details.
 
 **Q: Why not use GraphQL instead of REST?**
 A: For MVP, REST is simpler. GraphQL makes sense if we have many clients with 
@@ -1984,11 +1758,11 @@ A: All times stored in UTC. Frontend converts to user's local timezone.
 ## FINAL CHECKLIST
 
 **Before you build:**
-- [ ] Review all 4 feedback points
-- [ ] Understand Taxi Manager's role
-- [ ] Understand API Gateway usage
-- [ ] Understand orchestration pattern
-- [ ] Understand component-level detail needed
+- [ ] Review all 4 feedback points from failed candidate
+- [ ] Understand C4 progressive zoom (Context → Container → Component)
+- [ ] Understand API Gateway usage (client-facing only, not service-to-service)
+- [ ] Understand orchestration pattern (Integration Service as orchestrator)
+- [ ] Understand component-level detail needed (methods, data flows, algorithms)
 
 **When building React UI:**
 - [ ] Use TypeScript for type safety

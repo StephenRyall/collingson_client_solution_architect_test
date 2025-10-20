@@ -188,7 +188,7 @@ The app will open at: **http://localhost:3000**
 ### 2. COMPREHENSIVE_PLAN.md/PDF
 - ✅ Complete architectural plan
 - ✅ All 4 feedback points addressed
-- ✅ Actor model (5 actors including Taxi Manager)
+- ✅ Actor model (3 core actors for MVP focus)
 - ✅ Data flow design with schemas
 - ✅ API Gateway usage justification
 - ✅ Service communication patterns
@@ -215,7 +215,7 @@ The app will open at: **http://localhost:3000**
 6. **Show roadmap** - Phase 2/3 enhancements
 
 ### Key Talking Points
-- ✅ "5 distinct actors including Taxi Manager for operations"
+- ✅ "3 core actors (PP Member, Taxi User, Driver) for MVP focus"
 - ✅ "Hybrid orchestration-choreography for optimal performance"
 - ✅ "API Gateway only for client-facing requests, not service-to-service"
 - ✅ "PCI compliant with tokenization and data segregation"
@@ -292,9 +292,9 @@ The app will open at: **http://localhost:3000**
 - [ ] `src/services/utils/timeCalculations.ts` - Business logic
 
 ### Topics to Master
-- [ ] Actor separation (5 actors, especially Taxi Manager)
+- [ ] Actor separation (3 core actors for MVP)
 - [ ] Data flow with orchestration pattern
-- [ ] API Gateway justification
+- [ ] API Gateway justification (client-facing only)
 - [ ] Time calculation algorithm
 - [ ] PCI compliance strategy
 - [ ] MVP trade-offs and Phase 2 roadmap

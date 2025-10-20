@@ -149,7 +149,7 @@ npm start
 - [ ] **20** TypeScript files created
 - [ ] **13** CSS files for styling
 - [ ] **~3,500+** lines of code
-- [ ] **5** distinct actors (including Taxi Manager)
+- [ ] **3** core actors for MVP (PP Member, Taxi User, Driver)
 - [ ] **10%** Priority Pass member discount
 - [ ] **90 minutes** security buffer for international flights
 
