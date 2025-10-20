@@ -82,6 +82,10 @@ The following estimates represent the complexity and effort required to build ea
    - Formatting helpers (dates, currency, durations)
    - Business logic separated from UI
 
+### C4 Diagrams
+
+All C4 Diagrams can be found in the 'diagrams' folder along with an accompanying sequence diagram that outline a standard booking flow.
+
 ---
 
 ## 🎨 Technology Stack
