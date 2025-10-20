@@ -130,22 +130,79 @@ src/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 16+ and npm
+- **Node.js 16+** and **npm** installed on your machine
+  - Check if installed: `node --version` and `npm --version`
+  - Download from: [https://nodejs.org/](https://nodejs.org/)
+- **Git** installed for cloning the repository
+  - Check if installed: `git --version`
 
-### Installation
+### Quick Start (3 Steps)
+
+#### 1. Clone the Repository
 
 ```bash
-# Install dependencies
-npm install
+# Clone from GitHub
+git clone https://github.com/StephenRyall/collingson_client_solution_architect_test.git
 
-# Start development server
-npm start
-
-# Build for production
-npm run build
+# Navigate to project directory
+cd collingson_client_solution_architect_test
 ```
 
-The app will open at [http://localhost:3000](http://localhost:3000)
+#### 2. Install Dependencies
+
+```bash
+# Install all required packages
+npm install
+```
+
+This will install React, TypeScript, and all dependencies (~2-3 minutes).
+
+#### 3. Start the Application
+
+```bash
+# Start development server
+npm start
+```
+
+The app will automatically open at [http://localhost:3000](http://localhost:3000)
+
+### Alternative Commands
+
+```bash
+# Build for production
+npm run build
+
+# Run tests (if configured)
+npm test
+```
+
+### First Time Setup Troubleshooting
+
+**If you don't have Node.js:**
+```bash
+# macOS (using Homebrew)
+brew install node
+
+# Verify installation
+node --version
+npm --version
+```
+
+**If `npm install` fails:**
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Try again
+npm install
+```
+
+**If port 3000 is already in use:**
+```bash
+# The app will prompt to use a different port (e.g., 3001)
+# Or manually kill the process using port 3000
+lsof -ti:3000 | xargs kill -9
+```
 
 ---
 
