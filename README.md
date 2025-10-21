@@ -87,7 +87,7 @@ The following estimates represent the complexity and effort required to build ea
 
 ### C4 Diagrams
 
-All C4 Diagrams can be found in the 'diagrams' folder that outlines a standard booking flow.
+All C4 Diagrams can be found in the 'diagrams' folder.
 
 ### Integration Architecture: Priority Pass ↔ Taxi Platform
 
