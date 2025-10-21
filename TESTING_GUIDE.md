@@ -213,33 +213,6 @@ npm test -- --coverage --watchAll=false --verbose
    - High code coverage
    - Documentation of test purpose
 
----
-
-## 🎤 Presentation Talking Points
-
-When discussing tests in your interview:
-
-### "Why did you write these specific tests?"
-
-> "I focused on testing the **time calculation algorithm** because it's the core business logic that provides value to users. If this calculation is wrong, the entire booking experience fails. I also tested **data integrity** to ensure our mock data accurately represents production scenarios."
-
-### "What's your testing philosophy?"
-
-> "I believe in testing **business-critical paths first**. For an MVP, I prioritized:
-> 1. Core algorithms (time calculations)
-> 2. Data structure validation
-> 3. Edge cases that could break user experience
->
-> Post-MVP, I'd add component tests and E2E tests using React Testing Library and Cypress."
-
-### "How would you expand testing in production?"
-
-> "The next phase would include:
-> - **Component tests**: Test React components with React Testing Library
-> - **Integration tests**: Test TripPlannerPage end-to-end user flow
-> - **E2E tests**: Cypress tests for critical paths (book taxi, view lounges)
-> - **Performance tests**: Load testing for high traffic scenarios
-> - **Accessibility tests**: Automated a11y testing with jest-axe"
 
 ---
 

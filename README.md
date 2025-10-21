@@ -17,53 +17,57 @@ This is a React TypeScript application demonstrating the integration between **P
 
 This application demonstrates a **client-side MVP** that would integrate with backend services in production.
 
-### System Components
+### Key Architectural Principles
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    FRONTEND (This App)                  │
-│                                                          │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐       │
-│  │  Flight    │  │   Taxi     │  │  Lounge    │       │
-│  │ Components │  │ Components │  │ Components │       │
-│  └────────────┘  └────────────┘  └────────────┘       │
-│                                                          │
-│  ┌──────────────────────────────────────────────┐      │
-│  │       Trip Planner Page (Main View)          │      │
-│  └──────────────────────────────────────────────┘      │
-└─────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│              Backend Services (Not Built)                │
-│                                                          │
-│  • Integration Service (Orchestrator)                    │
-│  • Flight Data Service                                   │
-│  • Taxi Booking Service                                  │
-│  • User/Auth Service                                     │
-│  • Notification Service                                  │
-└─────────────────────────────────────────────────────────┘
-```
+#### 1. **Platform Independence**
+- **Priority Pass** and **Taxi Booking** are **separate systems** with their own databases
+- No shared database or direct database access between platforms
+- Communication **only through REST APIs**
+- Each platform can scale, deploy, and evolve independently
+
+#### 2. **Integration Service as Orchestrator & Adapter**
+The Integration Service acts as the **single point of integration** with external Taxi Platform:
+- **Orchestrates booking flow**: Validates user → Gets flight data → Calls Taxi API → Publishes events
+- **Enriches requests**: Adds flight context, membership tier, and PP-specific data before sending to Taxi API
+- **Receives webhooks**: Processes Taxi Platform status updates (driver assigned, ride completed)
+- **Maps data formats**: Translates between PP and Taxi schemas (no other PP service talks to Taxi directly)
+- **Maintains UUID correlation**: Stores mapping table (pp_booking_id ↔ taxi_booking_id)
+- **Handles failures**: Implements retries, circuit breakers, and graceful degradation
+
+**Why no separate "Taxi Booking Service" in PP?**
+- Taxi Platform is an **external partner** (like Uber/Lyft), not owned by PP
+- Integration Service contains all Taxi integration logic as internal components
+- Simpler architecture: fewer services to maintain and deploy
+- Flexible: Easy to add new taxi providers (Bolt, Lyft) by adding client adapters to Integration Service
+
+#### 3. **Event-Driven Updates**
+- **Orchestration** (synchronous): PP → Integration Service → Taxi API for bookings
+- **Choreography** (asynchronous): Taxi webhooks → Event Bus → Notification/Analytics
+- User gets immediate booking confirmation, while notifications/analytics happen in background
+
+#### 4. **Security & Compliance**
+- **API Gateway** enforces authentication, rate limiting for all client requests
+- **Service-to-service** communication bypasses gateway (trusted internal network)
+- **Payment data** stays within each platform's PCI-compliant payment service
+- **Minimal data sharing**: Only user_id, membership_tier, and booking UUIDs cross platforms
 
 ### T-Shirt Sizing (Container Diagram Estimates)
 
-The following estimates represent the complexity and effort required to build each backend service in the Container Diagram:
+The following estimates represent the complexity and effort required to build each **Priority Pass backend service** in the Container Diagram:
 
 | Service | Size | Justification |
 |---------|------|---------------|
 | **API Gateway** | **S** | Standard configuration using Kong/AWS API Gateway. Mostly setup and routing rules. |
-| **Integration Service** | **XL** | Most complex service - handles orchestration, time calculations, data enrichment, state management, error handling, and coordinates all other services. |
+| **Integration Service** | **XL** | Most complex service - handles orchestration, time calculations, data enrichment, state management, error handling, webhook processing, and coordinates all other services. Acts as adapter layer to external Taxi Platform. |
 | **Flight Data Service** | **M** | Moderate complexity - integrates with external flight APIs, caching layer, data normalization. Mostly API wrapping and data transformation. |
-| **Taxi Booking Service** | **L** | High complexity - ride matching algorithm, driver availability, real-time status updates, booking lifecycle management, integration with payment gateway. |
-| **User/Auth Service** | **M** | Standard OAuth 2.0 implementation with user profile management. Well-established patterns (Auth0/Keycloak). |
-| **Payment Service** | **L** | High complexity due to PCI compliance requirements, tokenization, secure payment gateway integration (Stripe/Adyen), reconciliation. |
-| **Notification Service** | **S** | Simple service using existing providers (SendGrid, Twilio). Template management and delivery tracking. |
+| **User Identity Service** | **M** | Standard OAuth 2.0 implementation with user profile management, notification preferences. Well-established patterns (Auth0/Keycloak). |
+| **Notification Service** | **S** | Simple service using existing providers (SendGrid, Twilio, Firebase). Template management and delivery tracking. |
 | **Event Bus** | **S** | Managed service (AWS EventBridge/Kafka). Mostly configuration and topic setup. |
-| **User Database** | **S** | PostgreSQL with standard schema. Well-defined data model. |
-| **Booking Database** | **M** | PostgreSQL with more complex relationships - bookings, rides, drivers, status history. Requires indexing strategy for high-read volume. |
-| **Analytics Warehouse** | **M** | Redshift/BigQuery setup with ETL pipelines. Aggregation queries and reporting dashboards. |
+| **Priority Pass Database** | **M** | PostgreSQL with standard schema. Well-defined data model. |
 
-**Total Estimated Effort:** ~6-8 months for a team of 4-5 engineers
+**Total Estimated Effort for Priority Pass Platform:** ~4-5 months for a team of 4-5 engineers
+
+**Note:** Taxi Booking Platform (external partner) and Payment Gateway (handled by Taxi Platform) are **not built by Priority Pass** and therefore not included in effort estimates.
 
 ### Design Patterns Used
 
@@ -85,6 +89,137 @@ The following estimates represent the complexity and effort required to build ea
 ### C4 Diagrams
 
 All C4 Diagrams can be found in the 'diagrams' folder along with an accompanying sequence diagram that outline a standard booking flow.
+
+### Integration Architecture: Priority Pass ↔ Taxi Platform
+
+This system demonstrates a **loosely-coupled integration** between two independent platforms using a **generic API contract**.
+
+#### Design Principle: Platform Independence
+
+```
+┌──────────────────────────┐         ┌──────────────────────────┐
+│   Priority Pass Platform │         │   Taxi Booking Platform  │
+│   (Separate Database)    │◄───────►│   (Separate Database)    │
+└──────────────────────────┘         └──────────────────────────┘
+         Own Data                            Own Data
+    • PP User Profiles                  • Driver Locations
+    • Membership Tiers                  • Vehicle Fleet
+    • Flight Bookings                   • Ride History
+    • Lounge Access                     • Fare Pricing
+```
+
+**Key Architectural Decision:**
+- **No shared database** - Each platform maintains its own data sovereignty
+- **No database exposure** - Neither platform accesses the other's database directly
+- **API-first integration** - All communication via REST APIs through Integration Service
+
+#### Integration Contract: What Gets Shared?
+
+**Priority Pass → Taxi Platform (at booking time):**
+
+```javascript
+{
+  "pp_booking_id": "uuid-1234-5678-...",  // ← Unique identifier for tracking
+  "user_id": "pp_member_456",              // ← For account linking
+  "membership_tier": "prestige",           // ← For discount calculation
+  "pickup_details": {
+    "address": "123 Main St, London",
+    "datetime": "2025-10-20T12:00:00Z"
+  },
+  "flight_context": {                      // ← For recommended timing
+    "flight_number": "BA281",
+    "departure_time": "2025-10-20T14:30:00Z",
+    "airport": "LHR",
+    "terminal": "5"
+  }
+}
+```
+
+**Taxi Platform → Priority Pass (response & updates):**
+
+```javascript
+{
+  "taxi_booking_id": "TXI_9999",          // ← Taxi's internal ID
+  "pp_booking_id": "uuid-1234-5678-...",  // ← For correlation
+  "status": "confirmed",
+  "driver_details": {                      // ← When assigned
+    "name": "John",
+    "vehicle": "Black Tesla Model 3",
+    "eta_minutes": 5
+  },
+  "fare": {
+    "base_fare": 45.00,
+    "discount": 4.50,                      // ← PP discount applied
+    "final_fare": 40.50,
+    "currency": "GBP"
+  },
+  "tracking_url": "https://taxi.app/track/TXI_9999"
+}
+```
+
+#### UUID Mapping: How Systems Stay in Sync
+
+The **Integration Service** maintains a mapping table to correlate bookings:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│              Booking Mapping Table                      │
+├────────────────┬──────────────┬────────────────────────┤
+│ pp_booking_id  │ taxi_booking │ status      │ updated  │
+│ (UUID)         │ _id          │             │ _at      │
+├────────────────┼──────────────┼─────────────┼──────────┤
+│ uuid-1234-...  │ TXI_9999     │ in_progress │ 12:05:00 │
+│ uuid-5678-...  │ TXI_8888     │ completed   │ 11:30:00 │
+└────────────────┴──────────────┴─────────────┴──────────┘
+```
+
+**Why This Matters:**
+1. **Webhooks**: When Taxi platform sends "driver assigned" webhook with `taxi_booking_id: TXI_9999`, Integration Service uses the mapping to find `pp_booking_id: uuid-1234` and update the correct PP user
+2. **Status Queries**: PP app can query "What's the status of my booking?" using their UUID, Integration Service translates to Taxi's ID
+3. **Cancellations**: If PP user cancels, Integration Service maps UUID → Taxi ID to call correct cancellation endpoint
+
+#### Exposed Inventory: Membership Data
+
+The Taxi Platform needs **minimal read access** to PP member data for:
+- **Discount Calculation**: Validate membership tier (standard/prestige/prestige_plus)
+- **Booking History**: Check if user qualifies for loyalty perks
+
+**Implementation Options:**
+
+**Option 1: Push Model (Recommended for MVP)**
+- PP includes `membership_tier` in every booking request
+- No additional API calls needed
+- Simple, low-latency
+
+**Option 2: Pull Model (Production Enhancement)**
+```
+Taxi Platform → Integration Service: GET /users/{user_id}/membership
+Response: { "tier": "prestige", "valid_until": "2026-12-31" }
+```
+
+**What's NOT Shared:**
+- ❌ Payment card details (each platform uses own payment gateway)
+- ❌ Personal data beyond user_id (GDPR compliance)
+- ❌ Internal business logic or pricing algorithms
+- ❌ Direct database access (API-only communication)
+
+#### Benefits of This Architecture
+
+1. **Scalability**: Each platform can scale independently without affecting the other
+2. **Flexibility**: Can swap Taxi partner (Uber → Lyft → Bolt) without changing PP core services
+3. **Security**: 
+   - No database credentials shared between platforms
+   - No payment card data exposure to PP
+   - Reduced attack surface (API-only integration)
+4. **Maintainability**: 
+   - Clear API contract between platforms
+   - Integration logic isolated in single service
+   - Easier to debug and test
+5. **Multi-Partner Support**: PP could integrate with multiple taxi providers simultaneously using same integration pattern
+6. **PCI Compliance**: PP avoids payment processing complexity and compliance burden (handled by Taxi Platform)
+7. **Cost Efficiency**: Leverage Taxi Platform's existing infrastructure (drivers, vehicles, dispatch, payments) rather than building from scratch
+
+**Architectural Pattern:** This is a **partner integration** model, not vertical integration. PP focuses on its core competency (airport lounge access) and partners with specialists (Taxi Platform for rides) via clean API boundaries.
 
 ---
 
@@ -241,10 +376,12 @@ pickup_time = flight_departure
 - Driver ETA
 - Real-time tracking URL
 
-**PCI Compliance:**
-- ✅ No payment card data shared between platforms
-- ✅ Each system maintains own payment gateway
-- ✅ Only payment tokens exchanged
+**Payment Processing:**
+- ✅ **Taxi Platform handles all payment processing** (not Priority Pass)
+- ✅ User's payment method stored with Taxi Platform (e.g., saved Uber payment)
+- ✅ Priority Pass **never sees or stores payment card data**
+- ✅ PP remains **out of PCI compliance scope** (significant security/cost benefit)
+- ✅ User sees charges from "Uber"/"Lyft" (clear, trusted brand)
 
 ### 3. Component Design
 
@@ -253,41 +390,6 @@ pickup_time = flight_departure
 - **Molecules**: Card, Timeline
 - **Organisms**: FlightCard, TaxiBookingWidget, LoungeList
 - **Templates**: TripPlannerPage
-
----
-
-## 📊 Data Models
-
-### User
-```typescript
-{
-  userId: string;
-  membershipTier: 'standard' | 'prestige' | 'prestige_plus';
-}
-```
-
-### Flight
-```typescript
-{
-  flightNumber: string;
-  departureAirport: string;  // IATA code
-  arrivalAirport: string;
-  departureTime: string;     // ISO 8601
-  terminal: string;
-  status: 'upcoming' | 'departed' | 'cancelled';
-}
-```
-
-### TaxiBooking
-```typescript
-{
-  pickupAddress: string;
-  pickupTime: string;
-  estimatedFare: number;
-  discountApplied: number;   // PP member discount
-  status: 'pending' | 'confirmed' | 'in_progress';
-}
-```
 
 ---
 
@@ -331,16 +433,42 @@ pickup_time = flight_departure
 ## 🛡️ Security Considerations
 
 ### PCI Compliance Strategy
-1. **No Card Data Storage**: Payment handled by PCI-compliant gateway (Stripe/Adyen)
-2. **Tokenization**: Store only payment tokens, never raw card data
-3. **Data Segregation**: Payment data isolated in separate systems
-4. **API Security**: TLS 1.3 for all communications
-5. **Audit Logging**: All transactions logged immutably
+
+**Key Decision: Taxi Platform Owns Payment Processing**
+
+Priority Pass follows a **partner-managed payment model** to minimize PCI compliance burden:
+
+1. **No Card Data Exposure**: 
+   - PP **never receives, stores, or transmits** payment card data
+   - User payment methods stored exclusively with Taxi Platform (Uber, Lyft, etc.)
+   - PP is **SAQ A** compliant (simplest PCI category - out of scope for most requirements)
+
+2. **Payment Flow**:
+   - User links PP account to existing Uber/Lyft account (OAuth)
+   - Or user enters payment in Taxi Platform's embedded form (data goes to Taxi, not PP)
+   - Taxi Platform processes payment after ride completion
+   - PP receives booking confirmation with fare amount only
+
+3. **PCI Responsibility**:
+   - **Taxi Platform**: Full PCI DSS compliance (Level 1 or SAQ D)
+   - **Priority Pass**: SAQ A (no card data interaction)
+   - Significantly reduces PP's security audit requirements and liability
+
+4. **API Security**: 
+   - TLS 1.3 for all communications
+   - Service-to-service authentication via API keys
+   - OAuth 2.0 for user authentication
+
+5. **Audit Logging**: 
+   - All booking transactions logged immutably
+   - No payment card data in logs (only booking IDs and fare amounts)
 
 ### Data Privacy
-- Cross-system queries go through Integration Service (gatekeeper)
-- Minimal data sharing between platforms (only what's necessary for core functionality)
-- GDPR-compliant data handling
+- **Platform Separation**: Each platform maintains own database (no shared data stores)
+- **Integration Service as Gatekeeper**: All cross-platform communication goes through Integration Service
+- **Minimal Data Sharing**: Only user_id, membership_tier, and booking UUIDs cross platforms
+- **GDPR Compliance**: No unnecessary PII shared between platforms
+- **User Control**: Users manage payment methods directly with Taxi Platform
 
 ---
 
@@ -402,24 +530,6 @@ The application is fully responsive:
 - Unit tests (Jest)
 - Component tests (React Testing Library)
 - E2E tests (Cypress)
-
----
-
-## 📝 Notes for Presentation
-
-### Key Points to Highlight
-1. **Clean Architecture**: Separation of UI, business logic, and data
-2. **Type Safety**: TypeScript prevents runtime errors
-3. **Reusability**: Common components used throughout
-4. **Scalability**: Designed for future backend integration
-5. **User-Centric**: Focused on traveler experience
-
-### Demo Flow
-1. Show flight information with status
-2. Explain recommended departure time algorithm
-3. Demo taxi booking with discount
-4. Show lounge availability
-5. Click "Book Taxi" to see success message
 
 ---
 
