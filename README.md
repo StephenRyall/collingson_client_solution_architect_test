@@ -32,7 +32,6 @@ The Integration Service acts as the **single point of integration** with externa
 - **Receives webhooks**: Processes Taxi Platform status updates (driver assigned, ride completed)
 - **Maps data formats**: Translates between PP and Taxi schemas (no other PP service talks to Taxi directly)
 - **Maintains UUID correlation**: Stores mapping table (pp_booking_id ↔ taxi_booking_id)
-- **Handles failures**: Implements retries, circuit breakers, and graceful degradation
 
 **Why no separate "Taxi Booking Service" in PP?**
 - Taxi Platform is an **external partner** (like Uber/Lyft), not owned by PP
@@ -88,7 +87,7 @@ The following estimates represent the complexity and effort required to build ea
 
 ### C4 Diagrams
 
-All C4 Diagrams can be found in the 'diagrams' folder along with an accompanying sequence diagram that outline a standard booking flow.
+All C4 Diagrams can be found in the 'diagrams' folder that outlines a standard booking flow.
 
 ### Integration Architecture: Priority Pass ↔ Taxi Platform
 
